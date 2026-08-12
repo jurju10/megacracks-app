@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Megacracks 26/27 · Mi álbum</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Work+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pitch:#143528; --pitch-2:#1d4a37; --gold:#c9a227; --gold-soft:#e0c463;
+    --paper:#f4efe2; --paper-2:#eae2cd; --ink:#1c2420; --ink-soft:#5a6459;
+    --falta:#b5402f; --line:#d8cfb4; --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--paper); color:var(--ink); font-family:'Work Sans',sans-serif; min-height:100vh; padding-bottom:60px;}
+  @media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms !important; transition-duration:.001ms !important;} }
+
+  header{ background:linear-gradient(160deg,var(--pitch) 0%,var(--pitch-2) 100%); padding:40px 20px 22px; border-bottom:3px solid var(--gold); position:relative; overflow:hidden; }
+  header::after{ content:""; position:absolute; inset:0; background:repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 1px, transparent 1px 46px); pointer-events:none; }
+  .user-badge{ position:absolute; top:14px; left:16px; display:none; align-items:center; gap:5px; background:rgba(0,0,0,.28); border:1px solid rgba(201,162,39,.4); color:var(--gold-soft); font-size:11.5px; font-weight:600; padding:5px 10px 5px 8px; border-radius:20px; z-index:1; max-width:calc(100% - 32px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-transform:uppercase; letter-spacing:.3px; }
+  h1{ font-family:'Oswald',sans-serif; font-weight:700; font-size:clamp(24px,7vw,32px); letter-spacing:.5px; color:var(--gold-soft); margin:0; text-transform:uppercase; }
+  .subtitle{ color:#cfe0d5; font-size:13px; margin-top:4px; letter-spacing:.3px; }
+  .scoreboard{ margin-top:16px; background:rgba(0,0,0,.25); border:1px solid rgba(201,162,39,.4); border-radius:var(--radius); padding:12px 14px; display:flex; align-items:center; gap:14px; }
+  .score-num{ font-family:'Space Mono',monospace; font-weight:700; color:var(--gold-soft); font-size:20px; white-space:nowrap; }
+  .bar-track{ flex:1; height:8px; background:rgba(255,255,255,.12); border-radius:6px; overflow:hidden; }
+  .bar-fill{ height:100%; background:linear-gradient(90deg,var(--gold) 0%,var(--gold-soft) 100%); width:0%; transition:width .4s ease; }
+  .score-repe{ font-family:'Space Mono',monospace; font-weight:700; color:var(--gold-soft); font-size:13px; white-space:nowrap; opacity:.85; border-left:1px solid rgba(255,255,255,.15); padding-left:12px; }
+  .save-status{ display:none; align-items:center; gap:6px; margin-top:8px; font-size:11.5px; color:#f0c9a8; }
+  .save-status.show{ display:flex; }
+  .save-status .dot{ width:7px; height:7px; border-radius:50%; background:#f0c9a8; flex-shrink:0; animation:savePulse 1s ease-in-out infinite; }
+  @keyframes savePulse{ 0%,100%{opacity:.4;} 50%{opacity:1;} }
+
+  main{ max-width:760px; margin:0 auto; padding:18px 16px 0; }
+  .panel{ background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:16px; margin-bottom:18px; }
+  .panel h2{ font-family:'Oswald',sans-serif; font-size:15px; text-transform:uppercase; letter-spacing:.5px; margin:0 0 10px; color:var(--pitch); }
+  .panel p{ font-size:13px; color:var(--ink-soft); margin:0 0 10px; line-height:1.4; }
+  .row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+  input,textarea{ font-family:'Work Sans',sans-serif; border:1px solid var(--line); border-radius:8px; padding:9px 10px; font-size:14px; background:var(--paper); color:var(--ink); }
+  input:focus,textarea:focus{ outline:2px solid var(--gold); outline-offset:1px; }
+  button{ font-family:'Work Sans',sans-serif; font-weight:600; border:none; border-radius:8px; padding:10px 16px; font-size:14px; cursor:pointer; transition:transform .1s ease; }
+  button:active{ transform:scale(.97); }
+  .btn-primary{ background:var(--pitch); color:var(--gold-soft); }
+  .btn-ghost{ background:transparent; color:var(--ink-soft); border:1px solid var(--line); }
+  .btn-danger{ background:transparent; color:var(--falta); border:1px solid var(--falta); }
+
+  .app-tabs{ display:flex; gap:6px; margin-bottom:16px; }
+  .app-tab{ flex:1; background:var(--paper-2); color:var(--ink-soft); padding:10px; font-size:13.5px; border-radius:8px; }
+  .app-tab.active{ background:var(--pitch); color:var(--gold-soft); }
+
+  .toolbar{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-bottom:14px; position:sticky; top:0; background:var(--paper); padding:10px 0; z-index:5; }
+  .filters{ display:flex; gap:6px; }
+  .filters button{ padding:7px 12px; font-size:13px; background:var(--paper-2); color:var(--ink-soft); }
+  .filters button.active{ background:var(--pitch); color:var(--gold-soft); }
+  .search{ flex:1 1 160px; }
+  .jump select{ width:100%; font-family:'Work Sans',sans-serif; border:1px solid var(--line); border-radius:8px; padding:9px 10px; background:var(--paper); color:var(--ink); }
+  .jump{ margin-bottom:16px; }
+
+  details.team-section{ background:#fff; border:1px solid var(--line); border-radius:10px; margin-bottom:8px; overflow:hidden; }
+  details.team-section[open]{ border-color:var(--pitch); }
+  details.team-section summary{ list-style:none; cursor:pointer; padding:12px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  details.team-section summary::-webkit-details-marker{ display:none; }
+  .team-header{ display:flex; align-items:center; gap:8px; flex:1; min-width:0; }
+  .team-header .arrow{ font-size:11px; color:var(--ink-soft); transition:transform .15s ease; flex-shrink:0; }
+  details[open] .team-header .arrow{ transform:rotate(90deg); }
+  .team-header h3{ font-family:'Oswald',sans-serif; text-transform:uppercase; font-size:14.5px; letter-spacing:.3px; margin:0; color:var(--pitch); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .team-count{ font-family:'Space Mono',monospace; font-size:12px; color:var(--ink-soft); flex-shrink:0; }
+  .team-count.complete{ color:var(--pitch-2); font-weight:700; }
+  .team-body{ padding:4px 14px 14px; }
+
+  .card-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:10px; }
+  .flat-list{ display:flex; flex-direction:column; gap:1px; }
+  .flat-row{ display:flex; align-items:center; gap:10px; padding:9px 4px; border-bottom:1px solid var(--paper-2); }
+  .flat-row:last-child{ border-bottom:none; }
+  .fr-num{ font-family:'Space Mono',monospace; font-size:12px; color:var(--falta); min-width:44px; flex-shrink:0; }
+  .flat-list.repes .fr-num{ color:var(--gold); }
+  .fr-name{ flex:1; font-size:13.5px; min-width:0; }
+  .fr-team{ font-size:11px; color:var(--ink-soft); }
+
+  .sticker{ position:relative; aspect-ratio:3/4; border-radius:8px 8px 4px 4px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px 4px; cursor:pointer; text-align:center; -webkit-tap-highlight-color:transparent; transition:transform .15s ease; }
+  .sticker:active{ transform:scale(.94); }
+  .sticker.missing{ background:var(--paper-2); border:2px dashed var(--line); color:var(--ink-soft); }
+  .sticker.have{ background:linear-gradient(160deg,var(--pitch) 0%,var(--pitch-2) 100%); border:2px solid var(--gold); color:var(--gold-soft); box-shadow:0 2px 6px rgba(20,53,40,.25); }
+  .sticker .num{ font-family:'Space Mono',monospace; font-weight:700; font-size:11px; opacity:.85; }
+  .sticker .name{ font-size:10.5px; font-weight:500; line-height:1.15; margin-top:3px; word-break:break-word; }
+  .sticker .check{ position:absolute; top:4px; right:5px; font-size:11px; pointer-events:none; }
+  .sticker .repe-toggle{ position:absolute; bottom:0; right:0; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:14px; opacity:.55; background:rgba(0,0,0,.06); border-radius:6px 2px 4px 2px; }
+  .sticker.missing .repe-toggle{ display:none; }
+  .sticker .repe-toggle.active{ opacity:1; color:var(--gold); background:rgba(201,162,39,.18); }
+  .sticker.have.is-repe{ box-shadow:0 0 0 2px var(--gold), 0 2px 6px rgba(20,53,40,.25); }
+
+  .empty-state{ text-align:center; padding:40px 16px; color:var(--ink-soft); }
+  .empty-state .big{ font-family:'Oswald',sans-serif; font-size:18px; color:var(--pitch); margin-bottom:6px; text-transform:uppercase; }
+  .hint{ font-size:12px; color:var(--ink-soft); margin-top:2px; }
+  .users-notice{ font-size:12px; color:var(--ink-soft); background:var(--paper-2); border-radius:8px; padding:10px 12px; margin:0 0 12px; line-height:1.4; }
+
+  footer{ text-align:center; font-size:12px; color:var(--ink-soft); padding:20px; }
+
+  /* ---- auth screen ---- */
+  #authScreen{ position:fixed; inset:0; z-index:900; display:none; align-items:center; justify-content:center; background:radial-gradient(circle at 50% 30%, #0e2e22 0%, #0a1f18 70%); padding:24px; }
+  .auth-box{ background:#fff; border-radius:var(--radius); padding:26px 22px; max-width:340px; width:100%; box-shadow:0 12px 32px rgba(0,0,0,.3); }
+  .auth-box h2{ font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:.4px; font-size:19px; color:var(--pitch); margin:0 0 4px; }
+  .auth-sub{ font-size:12.5px; color:var(--ink-soft); margin:0 0 16px; line-height:1.4; }
+  .auth-box .row{ margin-bottom:10px; }
+  .auth-box input{ width:100%; }
+  .auth-error{ background:#fbeae7; color:var(--falta); border:1px solid var(--falta); border-radius:8px; padding:8px 10px; font-size:12.5px; margin-bottom:12px; display:none; }
+  #authSubmit{ width:100%; }
+  .auth-switch{ width:100%; background:transparent; color:var(--ink-soft); text-decoration:underline; font-size:12px; padding:8px; margin-top:6px; }
+
+  /* ---- confirm modal ---- */
+  .modal-overlay{ display:none; position:fixed; inset:0; background:rgba(20,26,22,.55); align-items:center; justify-content:center; padding:24px; z-index:950; }
+  .modal-overlay.show{ display:flex; }
+  .modal-box{ background:#fff; border-radius:var(--radius); border:1px solid var(--line); padding:20px; max-width:340px; width:100%; box-shadow:0 12px 32px rgba(0,0,0,.25); }
+  .modal-box p{ font-size:14px; line-height:1.4; margin:0 0 16px; color:var(--ink); }
+  .modal-actions{ display:flex; gap:8px; justify-content:flex-end; }
+  .modal-actions button{ padding:9px 14px; font-size:13px; }
+</style>
+</head>
+<body>
+
+<div id="authScreen">
+  <div class="auth-box">
+    <h2 id="authTitle">Inicia sesión</h2>
+    <p class="auth-sub" id="authSub">Accede a tu álbum de Megacracks.</p>
+    <div class="auth-error" id="authError"></div>
+    <div class="row"><input type="text" id="authUser" placeholder="Usuario" autocomplete="username"></div>
+    <div class="row"><input type="password" id="authPass" placeholder="Contraseña" autocomplete="current-password"></div>
+    <button class="btn-primary" id="authSubmit">Entrar</button>
+    <button type="button" class="auth-switch" id="authSwitch">¿No tienes cuenta? Crear una</button>
+  </div>
+</div>
+
+<header>
+  <div class="user-badge" id="userBadge"></div>
+  <h1>Megacracks 26/27</h1>
+  <div class="subtitle">Tu álbum digital · checklist completo cargado</div>
+  <div class="scoreboard">
+    <div class="score-num" id="scoreText">0 / 0</div>
+    <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
+    <div class="score-repe" id="repeText">⇄ 0</div>
+  </div>
+  <div class="save-status" id="saveStatus"><span class="dot"></span> Guardando…</div>
+</header>
+
+<main>
+  <div class="app-tabs">
+    <button class="app-tab active" data-tab="album">Álbum</button>
+    <button class="app-tab" data-tab="users">Usuarios</button>
+    <button class="app-tab" data-tab="matches">Coincidencias</button>
+  </div>
+
+  <div id="albumView">
+    <div class="toolbar">
+      <input class="search" id="searchInput" placeholder="Buscar jugador, equipo o número...">
+      <div class="filters">
+        <button class="active" data-filter="all">Todas</button>
+        <button data-filter="have">Tengo</button>
+        <button data-filter="missing">Faltan</button>
+        <button data-filter="repes">Repes</button>
+      </div>
+    </div>
+    <div class="jump"><select id="jumpSelect"></select></div>
+    <div id="teamsContainer"></div>
+    <div class="row" style="justify-content:flex-end; margin-top:10px;">
+      <button class="btn-danger" id="resetBtn">Borrar toda mi colección</button>
+    </div>
+  </div>
+
+  <div id="usersView" style="display:none;">
+    <div class="panel">
+      <h2>Repes de otros usuarios</h2>
+      <p class="users-notice">Solo se comparte tu nombre de usuario y tu lista de cartas repetidas — nada más de tu colección, y nunca tu contraseña.</p>
+      <div class="row"><button class="btn-primary" id="refreshUsersBtn">Actualizar lista</button></div>
+    </div>
+    <div id="usersList"><p class="hint">Cargando usuarios...</p></div>
+  </div>
+
+  <div id="matchesView" style="display:none;">
+    <div class="panel">
+      <h2>Coincidencias para ti</h2>
+      <p class="users-notice">Cruza tus cartas que te faltan con las repetidas de los demás usuarios.</p>
+      <div class="row"><button class="btn-primary" id="refreshMatchesBtn">Buscar coincidencias</button></div>
+    </div>
+    <div id="matchesList"><p class="hint">Toca "Buscar coincidencias" para comprobar.</p></div>
+  </div>
+
+  <div class="row" style="margin-top:6px;">
+    <button type="button" class="auth-switch" id="logoutBtn" style="width:auto;">Cerrar sesión</button>
+  </div>
+</main>
+
+<footer>Megacracks 26/27 — checklist oficial (cartas 1-450; 451-513 pendientes de confirmar). Tus datos viven en tu propio servidor.</footer>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <p id="modalMessage"></p>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="modalCancel">Cancelar</button>
+      <button class="btn-danger" id="modalConfirm">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const API = ''; // same origin
+  let token = localStorage.getItem('mc_token');
+  let username = localStorage.getItem('mc_username');
+  let CHECKLIST = [];
+  let TEAM_ORDER = [];
+  let cards = []; // checklist merged with this user's have/repe state
+  let filter = 'all';
+  let query = '';
+  const openState = {};
+
+  // ---------- tiny fetch helper ----------
+  async function api(path, opts){
+    opts = opts || {};
+    const headers = Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {});
+    if(token) headers.Authorization = 'Bearer ' + token;
+    const res = await fetch(API + path, Object.assign({}, opts, { headers }));
+    let data = null;
+    try{ data = await res.json(); }catch(e){}
+    if(!res.ok) throw new Error((data && data.error) || ('Error ' + res.status));
+    return data;
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+  }
+  function slug(s){
+    return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  }
+
+  // ---------- confirm modal ----------
+  const modalOverlay = document.getElementById('modalOverlay');
+  const modalMessage = document.getElementById('modalMessage');
+  const modalCancel = document.getElementById('modalCancel');
+  const modalConfirm = document.getElementById('modalConfirm');
+  let modalConfirmHandler = null;
+  function showConfirm(message, label, onConfirm){
+    modalMessage.textContent = message;
+    modalConfirm.textContent = label || 'Eliminar';
+    modalConfirmHandler = onConfirm;
+    modalOverlay.classList.add('show');
+  }
+  function hideConfirm(){ modalOverlay.classList.remove('show'); modalConfirmHandler = null; }
+  modalCancel.addEventListener('click', hideConfirm);
+  modalOverlay.addEventListener('click', e => { if(e.target === modalOverlay) hideConfirm(); });
+  modalConfirm.addEventListener('click', () => { const fn = modalConfirmHandler; hideConfirm(); if(fn) fn(); });
+
+  // ---------- auth screen ----------
+  const authScreen = document.getElementById('authScreen');
+  const authTitle = document.getElementById('authTitle');
+  const authSub = document.getElementById('authSub');
+  const authError = document.getElementById('authError');
+  const authUser = document.getElementById('authUser');
+  const authPass = document.getElementById('authPass');
+  const authSubmit = document.getElementById('authSubmit');
+  const authSwitch = document.getElementById('authSwitch');
+  const userBadge = document.getElementById('userBadge');
+  let authMode = 'login';
+
+  function setAuthMode(mode){
+    authMode = mode;
+    if(mode === 'register'){
+      authTitle.textContent = 'Crea tu cuenta';
+      authSub.textContent = 'Tu usuario y contraseña se guardan cifrados en el servidor.';
+      authSubmit.textContent = 'Crear y entrar';
+      authSwitch.textContent = '¿Ya tienes cuenta? Iniciar sesión';
+    } else {
+      authTitle.textContent = 'Inicia sesión';
+      authSub.textContent = 'Accede a tu álbum de Megacracks.';
+      authSubmit.textContent = 'Entrar';
+      authSwitch.textContent = '¿No tienes cuenta? Crear una';
+    }
+    authError.style.display = 'none';
+  }
+  authSwitch.addEventListener('click', () => setAuthMode(authMode === 'login' ? 'register' : 'login'));
+
+  function updateUserBadge(){
+    if(username){ userBadge.textContent = '👤 ' + username; userBadge.style.display = 'inline-flex'; }
+    else userBadge.style.display = 'none';
+  }
+
+  async function handleAuthSubmit(){
+    authError.style.display = 'none';
+    const u = authUser.value.trim(), p = authPass.value;
+    if(!u || !p){ authError.textContent = 'Rellena usuario y contraseña.'; authError.style.display = 'block'; return; }
+    try{
+      const data = await api(authMode === 'register' ? '/api/register' : '/api/login', {
+        method: 'POST', body: JSON.stringify({ username: u, password: p })
+      });
+      token = data.token; username = data.username;
+      localStorage.setItem('mc_token', token);
+      localStorage.setItem('mc_username', username);
+      authScreen.style.display = 'none';
+      updateUserBadge();
+      boot();
+    }catch(e){
+      authError.textContent = e.message;
+      authError.style.display = 'block';
+    }
+  }
+  authSubmit.addEventListener('click', handleAuthSubmit);
+  [authUser, authPass].forEach(el => el.addEventListener('keydown', e => { if(e.key === 'Enter') handleAuthSubmit(); }));
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('mc_token'); localStorage.removeItem('mc_username');
+    token = null; username = null;
+    updateUserBadge();
+    setAuthMode('login');
+    authScreen.style.display = 'flex';
+  });
+
+  // ---------- collection state ----------
+  const scoreText = document.getElementById('scoreText');
+  const barFill = document.getElementById('barFill');
+  const repeText = document.getElementById('repeText');
+  const saveStatus = document.getElementById('saveStatus');
+  const teamsContainer = document.getElementById('teamsContainer');
+  const jumpSelect = document.getElementById('jumpSelect');
+
+  async function loadChecklistAndState(){
+    const cl = await api('/api/checklist');
+    CHECKLIST = cl.cards; TEAM_ORDER = cl.teamOrder;
+    const stateRes = await api('/api/collection');
+    const state = stateRes.state || {};
+    cards = CHECKLIST.map(c => ({
+      id: c.id, num: c.num, name: c.name, team: c.team,
+      have: !!(state[c.id] && state[c.id].have),
+      repe: !!(state[c.id] && state[c.id].repe)
+    }));
+  }
+
+  let saveQueue = new Set(); // ids pending write, for the status badge
+  async function pushCardState(card){
+    saveQueue.add(card.id);
+    saveStatus.classList.add('show');
+    try{
+      await api('/api/collection/card', { method:'POST', body: JSON.stringify({ cardId: card.id, have: card.have, repe: card.repe }) });
+    }catch(e){
+      // retry once in the background, then give up quietly — state is already correct locally
+      setTimeout(() => { pushCardState(card); }, 3000);
+      return;
+    }
+    saveQueue.delete(card.id);
+    if(saveQueue.size === 0) saveStatus.classList.remove('show');
+  }
+
+  function toggleHave(id){
+    const c = cards.find(x => x.id === id);
+    if(!c) return;
+    c.have = !c.have;
+    if(!c.have) c.repe = false;
+    pushCardState(c);
+    render();
+  }
+  function toggleRepe(id){
+    const c = cards.find(x => x.id === id);
+    if(c && c.have){ c.repe = !c.repe; pushCardState(c); render(); }
+  }
+  function deleteCard(id){
+    // "delete" here just means: forget you ever marked it (reset to missing)
+    const c = cards.find(x => x.id === id);
+    if(!c) return;
+    c.have = false; c.repe = false;
+    pushCardState(c);
+    render();
+  }
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    showConfirm('¿Seguro que quieres borrar toda tu colección? No se puede deshacer.', 'Borrar todo', async () => {
+      cards.forEach(c => { c.have = false; c.repe = false; });
+      render();
+      try{ await api('/api/collection/reset', { method: 'POST' }); }catch(e){}
+    });
+  });
+
+  // ---------- render (identical structure to the original artifact version) ----------
+  function render(){
+    const total = cards.length;
+    const have = cards.filter(c => c.have).length;
+    const repeTotal = cards.filter(c => c.repe).length;
+    scoreText.textContent = have + ' / ' + total;
+    barFill.style.width = total ? Math.round((have/total)*100) + '%' : '0%';
+    repeText.textContent = '⇄ ' + repeTotal;
+
+    const q = query.trim().toLowerCase();
+    let visible = cards.filter(c => {
+      if(filter === 'have' && !c.have) return false;
+      if(filter === 'missing' && c.have) return false;
+      if(filter === 'repes' && !c.repe) return false;
+      if(q && !(c.name.toLowerCase().includes(q) || c.team.toLowerCase().includes(q) || c.num.toLowerCase().includes(q))) return false;
+      return true;
+    });
+
+    teamsContainer.innerHTML = '';
+    if(visible.length === 0){
+      const msg = filter === 'repes' ? 'Aún no has marcado ninguna carta como repetida.' : 'Prueba otra búsqueda o filtro.';
+      teamsContainer.innerHTML = '<div class="empty-state"><div class="big">Sin resultados</div>' + msg + '</div>';
+      updateJump();
+      return;
+    }
+
+    const groups = {};
+    visible.forEach(c => { (groups[c.team] = groups[c.team] || []).push(c); });
+
+    const teamTotals = {};
+    cards.forEach(c => {
+      teamTotals[c.team] = teamTotals[c.team] || { total:0, have:0 };
+      teamTotals[c.team].total++;
+      if(c.have) teamTotals[c.team].have++;
+    });
+
+    const autoOpen = !!(q || filter !== 'all');
+    const listMode = filter === 'missing' || filter === 'repes';
+
+    const clubOrder = TEAM_ORDER.slice(0, TEAM_ORDER.length).filter(t => groups[t]);
+    const orderPresent = TEAM_ORDER.filter(t => groups[t]);
+
+    function repeRowsHtml(items){
+      if(!items || items.length === 0) return '<p class="hint" style="padding:8px 4px;">Sin cartas.</p>';
+      return '<div class="flat-list' + (filter === 'repes' ? ' repes' : '') + '">' + items.map(c =>
+        '<div class="flat-row"><span class="fr-num">' + (c.num ? '#'+escapeHtml(c.num) : '—') + '</span><span class="fr-name">' + escapeHtml(c.name) + '</span></div>'
+      ).join('') + '</div>';
+    }
+
+    orderPresent.forEach(team => {
+      const teamCards = groups[team];
+      const teamSlug = slug(team);
+      const section = document.createElement('details');
+      section.className = 'team-section';
+      section.id = 'team-' + teamSlug;
+      section.open = (teamSlug in openState) ? openState[teamSlug] : autoOpen;
+      section.addEventListener('toggle', () => { openState[teamSlug] = section.open; });
+
+      const summary = document.createElement('summary');
+      let countHtml;
+      if(filter === 'repes'){
+        countHtml = '<span class="team-count">' + teamCards.length + (teamCards.length===1?' repe':' repes') + '</span>';
+      } else {
+        const rt = teamTotals[team] || { total: teamCards.length, have: teamCards.filter(c=>c.have).length };
+        const complete = rt.have === rt.total;
+        countHtml = '<span class="team-count' + (complete?' complete':'') + '">' + rt.have + '/' + rt.total + (complete?' ✓':'') + '</span>';
+      }
+      summary.innerHTML = '<span class="team-header"><span class="arrow">▶</span><h3>' + escapeHtml(team) + '</h3></span>' + countHtml;
+      section.appendChild(summary);
+
+      const body = document.createElement('div');
+      body.className = 'team-body';
+
+      if(listMode){
+        body.innerHTML = repeRowsHtml(teamCards);
+      } else {
+        const grid = document.createElement('div');
+        grid.className = 'card-grid';
+        teamCards.forEach(c => {
+          const el = document.createElement('div');
+          el.className = 'sticker ' + (c.have?'have':'missing') + (c.repe?' is-repe':'');
+          el.innerHTML =
+            (c.have ? '<span class="check">★</span>' : '') +
+            '<span class="num">' + (c.num?'#'+escapeHtml(c.num):'') + '</span>' +
+            '<span class="name">' + escapeHtml(c.name) + '</span>' +
+            (c.have ? '<span class="repe-toggle' + (c.repe?' active':'') + '" data-repe="' + c.id + '">⇄</span>' : '');
+          el.addEventListener('click', ev => {
+            const repeHit = ev.target.closest('[data-repe]');
+            if(repeHit){ ev.stopPropagation(); toggleRepe(repeHit.dataset.repe); return; }
+            toggleHave(c.id);
+          });
+          grid.appendChild(el);
+        });
+        body.appendChild(grid);
+      }
+      section.appendChild(body);
+      teamsContainer.appendChild(section);
+    });
+
+    updateJump();
+  }
+
+  function updateJump(){
+    const present = TEAM_ORDER.filter(t => cards.some(c => c.team === t));
+    jumpSelect.innerHTML = '<option value="">Ir a equipo / serie...</option>' +
+      present.map(t => '<option value="'+slug(t)+'">'+escapeHtml(t)+'</option>').join('');
+  }
+  jumpSelect.addEventListener('change', () => {
+    if(!jumpSelect.value) return;
+    const el = document.getElementById('team-' + jumpSelect.value);
+    if(el){ el.open = true; openState[jumpSelect.value] = true; el.scrollIntoView({behavior:'smooth', block:'start'}); }
+    jumpSelect.value = '';
+  });
+
+  document.getElementById('searchInput').addEventListener('input', e => { query = e.target.value; render(); });
+  document.querySelectorAll('.filters button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filters button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filter = btn.dataset.filter;
+      render();
+    });
+  });
+
+  // ---------- tabs: album / usuarios / coincidencias ----------
+  const albumView = document.getElementById('albumView');
+  const usersView = document.getElementById('usersView');
+  const matchesView = document.getElementById('matchesView');
+  const usersListEl = document.getElementById('usersList');
+  const matchesListEl = document.getElementById('matchesList');
+  let usersCache = null;
+
+  function renderUserBlock(u){
+    const repes = u.repes || [];
+    return '<details class="team-section"><summary><span class="team-header"><span class="arrow">▶</span><h3>' + escapeHtml(u.username) + '</h3></span>' +
+      '<span class="team-count">' + repes.length + (repes.length===1?' repe':' repes') + '</span></summary>' +
+      '<div class="team-body"><div class="flat-list repes">' + (repes.length ? repes.map(m =>
+        '<div class="flat-row"><span class="fr-num">' + (m.num?'#'+escapeHtml(m.num):'—') + '</span><span class="fr-name">' + escapeHtml(m.name) + ' <span class="fr-team">(' + escapeHtml(m.team) + ')</span></span></div>'
+      ).join('') : '<p class="hint" style="padding:8px 4px;">Sin cartas repetidas.</p>') + '</div></div></details>';
+  }
+
+  async function fetchUsers(force){
+    if(usersCache && !force) return usersCache;
+    const data = await api('/api/users');
+    usersCache = data.users;
+    return usersCache;
+  }
+
+  async function loadUsersDirectory(force){
+    usersListEl.innerHTML = '<p class="hint">Cargando usuarios...</p>';
+    try{
+      const users = await fetchUsers(force);
+      if(users.length === 0){ usersListEl.innerHTML = '<p class="hint">Aún no hay nadie más registrado.</p>'; return; }
+      users.sort((a,b) => (b.repes?b.repes.length:0) - (a.repes?a.repes.length:0));
+      usersListEl.innerHTML = users.map(renderUserBlock).join('');
+    }catch(e){
+      usersListEl.innerHTML = '<p class="hint">No se pudo cargar la lista de usuarios ahora mismo.</p>';
+    }
+  }
+
+  async function loadMatches(force){
+    matchesListEl.innerHTML = '<p class="hint">Buscando coincidencias...</p>';
+    try{
+      const missingIds = new Set(cards.filter(c => !c.have).map(c => c.id));
+      const users = await fetchUsers(force);
+      const blocks = users
+        .map(u => ({ username: u.username, matches: (u.repes||[]).filter(m => missingIds.has(m.id)) }))
+        .filter(b => b.matches.length > 0)
+        .sort((a,b) => b.matches.length - a.matches.length);
+      if(blocks.length === 0){ matchesListEl.innerHTML = '<p class="hint">Todavía nadie tiene repetida una carta que te falte.</p>'; return; }
+      matchesListEl.innerHTML = blocks.map(b =>
+        '<details class="team-section" open><summary><span class="team-header"><span class="arrow">▶</span><h3>' + escapeHtml(b.username) + '</h3></span>' +
+        '<span class="team-count">' + b.matches.length + (b.matches.length===1?' carta':' cartas') + '</span></summary>' +
+        '<div class="team-body"><div class="flat-list repes">' + b.matches.map(m =>
+          '<div class="flat-row"><span class="fr-num">' + (m.num?'#'+escapeHtml(m.num):'—') + '</span><span class="fr-name">' + escapeHtml(m.name) + ' <span class="fr-team">(' + escapeHtml(m.team) + ')</span></span></div>'
+        ).join('') + '</div></div></details>'
+      ).join('');
+    }catch(e){
+      matchesListEl.innerHTML = '<p class="hint">No se pudo comprobar las coincidencias ahora mismo.</p>';
+    }
+  }
+
+  document.querySelectorAll('.app-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.app-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      albumView.style.display = 'none'; usersView.style.display = 'none'; matchesView.style.display = 'none';
+      if(tab.dataset.tab === 'users'){ usersView.style.display = ''; loadUsersDirectory(); }
+      else if(tab.dataset.tab === 'matches'){ matchesView.style.display = ''; loadMatches(); }
+      else albumView.style.display = '';
+    });
+  });
+  document.getElementById('refreshUsersBtn').addEventListener('click', () => loadUsersDirectory(true));
+  document.getElementById('refreshMatchesBtn').addEventListener('click', () => loadMatches(true));
+
+  // ---------- boot ----------
+  async function boot(){
+    try{
+      await loadChecklistAndState();
+      render();
+    }catch(e){
+      if(String(e.message).includes('autenticado') || String(e.message).includes('inválida')){
+        token = null; username = null;
+        localStorage.removeItem('mc_token'); localStorage.removeItem('mc_username');
+        setAuthMode('login');
+        authScreen.style.display = 'flex';
+      }
+    }
+  }
+
+  if(token && username){
+    updateUserBadge();
+    boot();
+  } else {
+    setAuthMode('login');
+    authScreen.style.display = 'flex';
+  }
+})();
+</script>
+</body>
+</html>
