@@ -20,6 +20,24 @@
   header{ background:linear-gradient(160deg,var(--pitch) 0%,var(--pitch-2) 100%); padding:40px 20px 22px; border-bottom:3px solid var(--gold); position:relative; overflow:hidden; }
   header::after{ content:""; position:absolute; inset:0; background:repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 1px, transparent 1px 46px); pointer-events:none; }
   .user-badge{ position:absolute; top:14px; left:16px; display:none; align-items:center; gap:5px; background:rgba(0,0,0,.28); border:1px solid rgba(201,162,39,.4); color:var(--gold-soft); font-size:11.5px; font-weight:600; padding:5px 10px 5px 8px; border-radius:20px; z-index:1; max-width:calc(100% - 32px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-transform:uppercase; letter-spacing:.3px; }
+  .unread-badge{ position:absolute; top:8px; left:8px; z-index:2; display:none; align-items:center; justify-content:center; min-width:17px; height:17px; padding:0 4px; border-radius:9px; background:#e0473a; color:#fff; font-family:'Space Mono',monospace; font-size:10px; font-weight:700; border:2px solid var(--pitch); }
+  .unread-badge.show{ display:flex; }
+  .team-header h3.chat-name{ cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px; }
+
+  #chatOverlay{ position:fixed; inset:0; z-index:960; display:none; align-items:flex-end; justify-content:center; background:rgba(20,26,22,.55); }
+  #chatOverlay.show{ display:flex; }
+  .chat-box{ background:var(--paper); width:100%; max-width:480px; height:78vh; max-height:600px; border-radius:16px 16px 0 0; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 -8px 30px rgba(0,0,0,.35); }
+  .chat-head{ background:linear-gradient(160deg,var(--pitch) 0%,var(--pitch-2) 100%); color:var(--gold-soft); padding:14px 16px; display:flex; align-items:center; justify-content:space-between; }
+  .chat-head h3{ font-family:'Oswald',sans-serif; text-transform:uppercase; font-size:15px; margin:0; letter-spacing:.3px; }
+  .chat-close{ background:transparent; color:var(--gold-soft); font-size:20px; padding:2px 8px; }
+  .chat-messages{ flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:8px; }
+  .chat-msg{ max-width:78%; padding:8px 12px; border-radius:14px; font-size:13.5px; line-height:1.35; word-break:break-word; }
+  .chat-msg.theirs{ align-self:flex-start; background:#fff; border:1px solid var(--line); border-bottom-left-radius:4px; }
+  .chat-msg.mine{ align-self:flex-end; background:var(--pitch); color:var(--gold-soft); border-bottom-right-radius:4px; }
+  .chat-empty{ text-align:center; color:var(--ink-soft); font-size:13px; padding:30px 10px; }
+  .chat-input-row{ display:flex; gap:8px; padding:10px; border-top:1px solid var(--line); background:#fff; }
+  .chat-input-row input{ flex:1; }
+  .chat-input-row button{ flex-shrink:0; }
   h1{ font-family:'Oswald',sans-serif; font-weight:700; font-size:clamp(24px,7vw,32px); letter-spacing:.5px; color:var(--gold-soft); margin:0; text-transform:uppercase; }
   .subtitle{ color:#cfe0d5; font-size:13px; margin-top:4px; letter-spacing:.3px; }
   .scoreboard{ margin-top:16px; background:rgba(0,0,0,.25); border:1px solid rgba(201,162,39,.4); border-radius:var(--radius); padding:12px 14px; display:flex; align-items:center; gap:14px; }
@@ -85,10 +103,43 @@
   .sticker .num{ font-family:'Space Mono',monospace; font-weight:700; font-size:11px; opacity:.85; }
   .sticker .name{ font-size:10.5px; font-weight:500; line-height:1.15; margin-top:3px; word-break:break-word; }
   .sticker .check{ position:absolute; top:4px; right:5px; font-size:11px; pointer-events:none; }
-  .sticker .repe-toggle{ position:absolute; bottom:0; right:0; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:14px; opacity:.55; background:rgba(0,0,0,.06); border-radius:6px 2px 4px 2px; }
-  .sticker.missing .repe-toggle{ display:none; }
-  .sticker .repe-toggle.active{ opacity:1; color:var(--gold); background:rgba(201,162,39,.18); }
+  .sticker .repe-ctrl{ position:absolute; bottom:0; left:0; right:0; display:flex; align-items:center; justify-content:center; gap:3px; padding:3px 2px; background:rgba(0,0,0,.18); border-radius:0 0 4px 4px; }
+  .sticker.missing .repe-ctrl{ display:none; }
+  .repe-btn{ width:16px; height:16px; min-width:16px; padding:0; border-radius:3px; font-size:11px; line-height:1; font-weight:700; background:rgba(255,255,255,.14); color:inherit; }
+  .repe-btn:active{ transform:scale(.9); }
+  .repe-btn:disabled{ opacity:.25; }
+  .repe-qty{ font-family:'Space Mono',monospace; font-size:10px; min-width:11px; text-align:center; }
   .sticker.have.is-repe{ box-shadow:0 0 0 2px var(--gold), 0 2px 6px rgba(20,53,40,.25); }
+  .sticker.have.is-pending{ background:linear-gradient(160deg,#8a4a12 0%,#b3660f 100%); border-color:#f0a13a; color:#ffe4bc; }
+  .sticker.have.is-pending .repe-ctrl{ display:none; }
+  .sticker .pending-tag{ position:absolute; bottom:3px; left:0; right:0; text-align:center; font-size:8.5px; font-weight:700; text-transform:uppercase; letter-spacing:.3px; opacity:.9; }
+
+  /* ---- trade proposals / builder ---- */
+  .trade-card{ background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:8px; }
+  .trade-card h4{ font-family:'Oswald',sans-serif; text-transform:uppercase; font-size:13.5px; color:var(--pitch); margin:0 0 6px; }
+  .trade-side{ font-size:12px; color:var(--ink-soft); margin:4px 0; line-height:1.5; }
+  .trade-side b{ color:var(--ink); }
+  .trade-actions{ display:flex; gap:8px; margin-top:8px; }
+  .trade-actions button{ padding:8px 12px; font-size:12.5px; flex:1; }
+  .match-user-row{ display:flex; align-items:center; justify-content:space-between; background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:8px; cursor:pointer; }
+  .match-user-row:active{ transform:scale(.98); }
+  .match-user-row .mu-name{ font-family:'Oswald',sans-serif; text-transform:uppercase; font-size:14px; color:var(--pitch); }
+  .match-user-row .mu-count{ font-family:'Space Mono',monospace; font-size:12px; color:var(--gold); }
+
+  #tradeOverlay{ position:fixed; inset:0; z-index:960; display:none; align-items:flex-end; justify-content:center; background:rgba(20,26,22,.55); }
+  #tradeOverlay.show{ display:flex; }
+  .trade-box{ background:var(--paper); width:100%; max-width:560px; height:86vh; max-height:680px; border-radius:16px 16px 0 0; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 -8px 30px rgba(0,0,0,.35); }
+  .trade-head{ background:linear-gradient(160deg,var(--pitch) 0%,var(--pitch-2) 100%); color:var(--gold-soft); padding:14px 16px; display:flex; align-items:center; justify-content:space-between; }
+  .trade-head h3{ font-family:'Oswald',sans-serif; text-transform:uppercase; font-size:15px; margin:0; }
+  .trade-body{ flex:1; overflow-y:auto; padding:12px 14px; }
+  .trade-cols{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .trade-col h4{ font-family:'Oswald',sans-serif; text-transform:uppercase; font-size:11.5px; color:var(--ink-soft); margin:0 0 6px; text-align:center; }
+  .trade-pick-row{ display:flex; align-items:center; gap:6px; padding:7px 6px; border-radius:6px; font-size:11.5px; cursor:pointer; }
+  .trade-pick-row:active{ background:var(--paper-2); }
+  .trade-pick-row input{ width:auto; flex-shrink:0; }
+  .trade-pick-row .tp-name{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .trade-footer{ padding:10px 14px; border-top:1px solid var(--line); background:#fff; }
+  .trade-summary{ font-size:12px; color:var(--ink-soft); margin-bottom:8px; text-align:center; }
 
   .empty-state{ text-align:center; padding:40px 16px; color:var(--ink-soft); }
   .empty-state .big{ font-family:'Oswald',sans-serif; font-size:18px; color:var(--pitch); margin-bottom:6px; text-transform:uppercase; }
@@ -133,6 +184,7 @@
 
 <header>
   <div class="user-badge" id="userBadge"></div>
+  <div class="unread-badge" id="unreadBadge">0</div>
   <h1>Megacracks 26/27</h1>
   <div class="subtitle">Tu álbum digital · checklist completo cargado</div>
   <div class="scoreboard">
@@ -179,9 +231,10 @@
   <div id="matchesView" style="display:none;">
     <div class="panel">
       <h2>Coincidencias para ti</h2>
-      <p class="users-notice">Cruza tus cartas que te faltan con las repetidas de los demás usuarios.</p>
+      <p class="users-notice">Cruza tus cartas que te faltan con las repetidas de los demás usuarios. Toca a alguien para elegir qué cambiar.</p>
       <div class="row"><button class="btn-primary" id="refreshMatchesBtn">Buscar coincidencias</button></div>
     </div>
+    <div id="tradesPending"></div>
     <div id="matchesList"><p class="hint">Toca "Buscar coincidencias" para comprobar.</p></div>
   </div>
 
@@ -190,7 +243,47 @@
   </div>
 </main>
 
+<div id="tradeOverlay">
+  <div class="trade-box">
+    <div class="trade-head">
+      <h3 id="tradeWithName">Proponer cambio</h3>
+      <button type="button" class="chat-close" id="tradeCloseBtn">✕</button>
+    </div>
+    <div class="trade-body">
+      <p class="hint" style="margin-bottom:10px;">Marca lo que te interesa recibir y lo que ofreces. No hace falta que sea el mismo número de cartas en cada lado.</p>
+      <div class="trade-cols">
+        <div class="trade-col">
+          <h4 id="theirColHead">Sus repes</h4>
+          <div id="theirPickList"></div>
+        </div>
+        <div class="trade-col">
+          <h4 id="myColHead">Mis repes</h4>
+          <div id="myPickList"></div>
+        </div>
+      </div>
+    </div>
+    <div class="trade-footer">
+      <div class="trade-summary" id="tradeSummary">Elige al menos una carta</div>
+      <button type="button" class="btn-primary" id="tradeSubmitBtn" style="width:100%;">Solicitar cambio</button>
+    </div>
+  </div>
+</div>
+
 <footer>Megacracks 26/27 — checklist oficial (cartas 1-450; 451-513 pendientes de confirmar). Tus datos viven en tu propio servidor.</footer>
+
+<div id="chatOverlay">
+  <div class="chat-box">
+    <div class="chat-head">
+      <h3 id="chatWithName">Chat</h3>
+      <button type="button" class="chat-close" id="chatCloseBtn">✕</button>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chatInput" placeholder="Escribe un mensaje..." maxlength="1000">
+      <button type="button" class="btn-primary" id="chatSendBtn">Enviar</button>
+    </div>
+  </div>
+</div>
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal-box">
@@ -310,6 +403,7 @@
     localStorage.removeItem('mc_token'); localStorage.removeItem('mc_username');
     token = null; username = null;
     updateUserBadge();
+    unreadBadge.classList.remove('show');
     setAuthMode('login');
     authScreen.style.display = 'flex';
   });
@@ -330,7 +424,8 @@
     cards = CHECKLIST.map(c => ({
       id: c.id, num: c.num, name: c.name, team: c.team,
       have: !!(state[c.id] && state[c.id].have),
-      repe: !!(state[c.id] && state[c.id].repe)
+      repeQty: (state[c.id] && state[c.id].repeQty) || 0,
+      status: (state[c.id] && state[c.id].status) || 'physical'
     }));
   }
 
@@ -339,7 +434,8 @@
     saveQueue.add(card.id);
     saveStatus.classList.add('show');
     try{
-      await api('/api/collection/card', { method:'POST', body: JSON.stringify({ cardId: card.id, have: card.have, repe: card.repe }) });
+      await api('/api/collection/card', { method:'POST', body: JSON.stringify({ cardId: card.id, have: card.have, repeQty: card.repeQty }) });
+      card.status = 'physical'; // manual taps always confirm physical possession
     }catch(e){
       // retry once in the background, then give up quietly — state is already correct locally
       setTimeout(() => { pushCardState(card); }, 3000);
@@ -353,26 +449,38 @@
     const c = cards.find(x => x.id === id);
     if(!c) return;
     c.have = !c.have;
-    if(!c.have) c.repe = false;
+    if(!c.have) c.repeQty = 0;
     pushCardState(c);
     render();
   }
-  function toggleRepe(id){
+  function incRepe(id){
     const c = cards.find(x => x.id === id);
-    if(c && c.have){ c.repe = !c.repe; pushCardState(c); render(); }
+    if(c && c.have){ c.repeQty = Math.min(999, c.repeQty + 1); pushCardState(c); render(); }
+  }
+  function decRepe(id){
+    const c = cards.find(x => x.id === id);
+    if(c && c.repeQty > 0){ c.repeQty = c.repeQty - 1; pushCardState(c); render(); }
   }
   function deleteCard(id){
     // "delete" here just means: forget you ever marked it (reset to missing)
     const c = cards.find(x => x.id === id);
     if(!c) return;
-    c.have = false; c.repe = false;
+    c.have = false; c.repeQty = 0;
     pushCardState(c);
     render();
+  }
+  async function confirmArrival(id){
+    const c = cards.find(x => x.id === id);
+    if(!c || c.status !== 'pending') return;
+    c.status = 'physical'; // optimistic
+    render();
+    try{ await api('/api/collection/confirm/' + encodeURIComponent(id), { method:'POST' }); }
+    catch(e){ /* will still show green locally; next full reload reconciles if it actually failed */ }
   }
 
   document.getElementById('resetBtn').addEventListener('click', () => {
     showConfirm('¿Seguro que quieres borrar toda tu colección? No se puede deshacer.', 'Borrar todo', async () => {
-      cards.forEach(c => { c.have = false; c.repe = false; });
+      cards.forEach(c => { c.have = false; c.repeQty = 0; });
       render();
       try{ await api('/api/collection/reset', { method: 'POST' }); }catch(e){}
     });
@@ -382,7 +490,7 @@
   function render(){
     const total = cards.length;
     const have = cards.filter(c => c.have).length;
-    const repeTotal = cards.filter(c => c.repe).length;
+    const repeTotal = cards.reduce((sum,c) => sum + (c.repeQty||0), 0);
     scoreText.textContent = have + ' / ' + total;
     barFill.style.width = total ? Math.round((have/total)*100) + '%' : '0%';
     repeText.textContent = '⇄ ' + repeTotal;
@@ -391,7 +499,7 @@
     let visible = cards.filter(c => {
       if(filter === 'have' && !c.have) return false;
       if(filter === 'missing' && c.have) return false;
-      if(filter === 'repes' && !c.repe) return false;
+      if(filter === 'repes' && !(c.repeQty > 0)) return false;
       if(q && !(c.name.toLowerCase().includes(q) || c.team.toLowerCase().includes(q) || c.num.toLowerCase().includes(q))) return false;
       return true;
     });
@@ -423,7 +531,8 @@
     function repeRowsHtml(items){
       if(!items || items.length === 0) return '<p class="hint" style="padding:8px 4px;">Sin cartas.</p>';
       return '<div class="flat-list' + (filter === 'repes' ? ' repes' : '') + '">' + items.map(c =>
-        '<div class="flat-row"><span class="fr-num">' + (c.num ? '#'+escapeHtml(c.num) : '—') + '</span><span class="fr-name">' + escapeHtml(c.name) + '</span></div>'
+        '<div class="flat-row"><span class="fr-num">' + (c.num ? '#'+escapeHtml(c.num) : '—') + '</span><span class="fr-name">' + escapeHtml(c.name) +
+        ((c.qty || c.repeQty) > 1 ? ' <span class="fr-team">x' + (c.qty || c.repeQty) + '</span>' : '') + '</span></div>'
       ).join('') + '</div>';
     }
 
@@ -439,7 +548,8 @@
       const summary = document.createElement('summary');
       let countHtml;
       if(filter === 'repes'){
-        countHtml = '<span class="team-count">' + teamCards.length + (teamCards.length===1?' repe':' repes') + '</span>';
+        const teamRepeSum = teamCards.reduce((s,c) => s + (c.repeQty||0), 0);
+        countHtml = '<span class="team-count">' + teamCards.length + (teamCards.length===1?' carta':' cartas') + ' · ⇄' + teamRepeSum + '</span>';
       } else {
         const rt = teamTotals[team] || { total: teamCards.length, have: teamCards.filter(c=>c.have).length };
         const complete = rt.have === rt.total;
@@ -457,16 +567,27 @@
         const grid = document.createElement('div');
         grid.className = 'card-grid';
         teamCards.forEach(c => {
+          const isPending = c.have && c.status === 'pending';
           const el = document.createElement('div');
-          el.className = 'sticker ' + (c.have?'have':'missing') + (c.repe?' is-repe':'');
+          el.className = 'sticker ' + (c.have?'have':'missing') + (c.repeQty>0?' is-repe':'') + (isPending?' is-pending':'');
           el.innerHTML =
             (c.have ? '<span class="check">★</span>' : '') +
             '<span class="num">' + (c.num?'#'+escapeHtml(c.num):'') + '</span>' +
             '<span class="name">' + escapeHtml(c.name) + '</span>' +
-            (c.have ? '<span class="repe-toggle' + (c.repe?' active':'') + '" data-repe="' + c.id + '">⇄</span>' : '');
+            (isPending ? '<span class="pending-tag">toca al llegar</span>' : '') +
+            (c.have && !isPending ? (
+              '<span class="repe-ctrl">' +
+                '<button type="button" class="repe-btn" data-dec="' + c.id + '"' + (c.repeQty<=0?' disabled':'') + '>−</button>' +
+                '<span class="repe-qty">' + c.repeQty + '</span>' +
+                '<button type="button" class="repe-btn" data-inc="' + c.id + '">+</button>' +
+              '</span>'
+            ) : '');
           el.addEventListener('click', ev => {
-            const repeHit = ev.target.closest('[data-repe]');
-            if(repeHit){ ev.stopPropagation(); toggleRepe(repeHit.dataset.repe); return; }
+            if(isPending){ confirmArrival(c.id); return; }
+            const decHit = ev.target.closest('[data-dec]');
+            if(decHit){ ev.stopPropagation(); decRepe(decHit.dataset.dec); return; }
+            const incHit = ev.target.closest('[data-inc]');
+            if(incHit){ ev.stopPropagation(); incRepe(incHit.dataset.inc); return; }
             toggleHave(c.id);
           });
           grid.appendChild(el);
@@ -512,11 +633,21 @@
 
   function renderUserBlock(u){
     const repes = u.repes || [];
-    return '<details class="team-section"><summary><span class="team-header"><span class="arrow">▶</span><h3>' + escapeHtml(u.username) + '</h3></span>' +
-      '<span class="team-count">' + repes.length + (repes.length===1?' repe':' repes') + '</span></summary>' +
+    const totalQty = repes.reduce((s,m) => s + (m.qty||1), 0);
+    return '<details class="team-section"><summary><span class="team-header"><span class="arrow">▶</span><h3 class="chat-name" data-chat-user="' + escapeHtml(u.username) + '">' + escapeHtml(u.username) + '</h3></span>' +
+      '<span class="team-count">' + repes.length + (repes.length===1?' carta':' cartas') + ' · ⇄' + totalQty + '</span></summary>' +
       '<div class="team-body"><div class="flat-list repes">' + (repes.length ? repes.map(m =>
-        '<div class="flat-row"><span class="fr-num">' + (m.num?'#'+escapeHtml(m.num):'—') + '</span><span class="fr-name">' + escapeHtml(m.name) + ' <span class="fr-team">(' + escapeHtml(m.team) + ')</span></span></div>'
+        '<div class="flat-row"><span class="fr-num">' + (m.num?'#'+escapeHtml(m.num):'—') + '</span><span class="fr-name">' + escapeHtml(m.name) + ' <span class="fr-team">(' + escapeHtml(m.team) + ')' + (m.qty>1?' x'+m.qty:'') + '</span></span></div>'
       ).join('') : '<p class="hint" style="padding:8px 4px;">Sin cartas repetidas.</p>') + '</div></div></details>';
+  }
+
+  function wireChatNames(container){
+    container.querySelectorAll('.chat-name').forEach(el => {
+      el.addEventListener('click', ev => {
+        ev.preventDefault(); ev.stopPropagation();
+        openChat(el.dataset.chatUser);
+      });
+    });
   }
 
   async function fetchUsers(force){
@@ -533,13 +664,17 @@
       if(users.length === 0){ usersListEl.innerHTML = '<p class="hint">Aún no hay nadie más registrado.</p>'; return; }
       users.sort((a,b) => (b.repes?b.repes.length:0) - (a.repes?a.repes.length:0));
       usersListEl.innerHTML = users.map(renderUserBlock).join('');
+      wireChatNames(usersListEl);
     }catch(e){
       usersListEl.innerHTML = '<p class="hint">No se pudo cargar la lista de usuarios ahora mismo.</p>';
     }
   }
 
+  const tradesPendingEl = document.getElementById('tradesPending');
+
   async function loadMatches(force){
     matchesListEl.innerHTML = '<p class="hint">Buscando coincidencias...</p>';
+    loadPendingTrades();
     try{
       const missingIds = new Set(cards.filter(c => !c.have).map(c => c.id));
       const users = await fetchUsers(force);
@@ -549,16 +684,170 @@
         .sort((a,b) => b.matches.length - a.matches.length);
       if(blocks.length === 0){ matchesListEl.innerHTML = '<p class="hint">Todavía nadie tiene repetida una carta que te falte.</p>'; return; }
       matchesListEl.innerHTML = blocks.map(b =>
-        '<details class="team-section" open><summary><span class="team-header"><span class="arrow">▶</span><h3>' + escapeHtml(b.username) + '</h3></span>' +
-        '<span class="team-count">' + b.matches.length + (b.matches.length===1?' carta':' cartas') + '</span></summary>' +
-        '<div class="team-body"><div class="flat-list repes">' + b.matches.map(m =>
-          '<div class="flat-row"><span class="fr-num">' + (m.num?'#'+escapeHtml(m.num):'—') + '</span><span class="fr-name">' + escapeHtml(m.name) + ' <span class="fr-team">(' + escapeHtml(m.team) + ')</span></span></div>'
-        ).join('') + '</div></div></details>'
+        '<div class="match-user-row" data-trade-user="' + escapeHtml(b.username) + '">' +
+          '<span class="mu-name chat-name" data-chat-user="' + escapeHtml(b.username) + '">💬 ' + escapeHtml(b.username) + '</span>' +
+          '<span class="mu-count">' + b.matches.length + (b.matches.length===1?' coincidencia':' coincidencias') + ' ›</span>' +
+        '</div>'
       ).join('');
+      matchesListEl.querySelectorAll('[data-trade-user]').forEach(row => {
+        row.addEventListener('click', () => openTradeBuilder(row.dataset.tradeUser));
+      });
+      wireChatNames(matchesListEl);
     }catch(e){
       matchesListEl.innerHTML = '<p class="hint">No se pudo comprobar las coincidencias ahora mismo.</p>';
     }
   }
+
+  // ---------- pending trade proposals (incoming to respond, outgoing awaiting reply) ----------
+  function renderTradeCard(t, direction){
+    const fromText = t.fromGives.length
+      ? t.fromGives.map(c => c.label).join(', ')
+      : 'nada';
+    const toText = t.toGives.length
+      ? t.toGives.map(c => c.label).join(', ')
+      : 'nada';
+    if(direction === 'incoming'){
+      return '<div class="trade-card">' +
+        '<h4>' + escapeHtml(t.username) + ' te propone un cambio</h4>' +
+        '<div class="trade-side"><b>Te da:</b> ' + escapeHtml(fromText) + '</div>' +
+        '<div class="trade-side"><b>Te pide:</b> ' + escapeHtml(toText) + '</div>' +
+        '<div class="trade-actions">' +
+          '<button type="button" class="btn-danger" data-reject="' + t.id + '">Rechazar</button>' +
+          '<button type="button" class="btn-primary" data-accept="' + t.id + '">Aceptar</button>' +
+        '</div></div>';
+    }
+    return '<div class="trade-card">' +
+      '<h4>Propuesta a ' + escapeHtml(t.username) + '</h4>' +
+      '<div class="trade-side"><b>Le das:</b> ' + escapeHtml(fromText) + '</div>' +
+      '<div class="trade-side"><b>Le pides:</b> ' + escapeHtml(toText) + '</div>' +
+      '<div class="trade-side" style="font-style:italic;">Esperando respuesta...</div>' +
+      '<div class="trade-actions">' +
+        '<button type="button" class="btn-ghost" data-cancel="' + t.id + '" style="flex:1;">Cancelar propuesta</button>' +
+      '</div></div>';
+  }
+
+  async function loadPendingTrades(){
+    try{
+      const data = await api('/api/trades/pending');
+      const parts = [];
+      (data.incoming||[]).forEach(t => parts.push(renderTradeCard(t, 'incoming')));
+      (data.outgoing||[]).forEach(t => parts.push(renderTradeCard(t, 'outgoing')));
+      if(parts.length === 0){ tradesPendingEl.innerHTML = ''; return; }
+      tradesPendingEl.innerHTML = '<div class="panel"><h2>Propuestas pendientes</h2>' + parts.join('') + '</div>';
+      tradesPendingEl.querySelectorAll('[data-accept]').forEach(b => b.addEventListener('click', () => respondTrade(b.dataset.accept, true)));
+      tradesPendingEl.querySelectorAll('[data-reject]').forEach(b => b.addEventListener('click', () => respondTrade(b.dataset.reject, false)));
+      tradesPendingEl.querySelectorAll('[data-cancel]').forEach(b => b.addEventListener('click', () => cancelTrade(b.dataset.cancel)));
+    }catch(e){
+      tradesPendingEl.innerHTML = '';
+    }
+  }
+
+  async function respondTrade(id, accept){
+    try{
+      await api('/api/trades/' + id + '/respond', { method:'POST', body: JSON.stringify({ accept }) });
+      await loadChecklistAndState(); // pull in any newly-received (orange) cards
+      render();
+      loadPendingTrades();
+    }catch(e){ showConfirm(e.message || 'No se pudo responder al cambio.', 'Vale', () => {}); }
+  }
+  async function cancelTrade(id){
+    try{ await api('/api/trades/' + id + '/cancel', { method:'POST' }); loadPendingTrades(); }
+    catch(e){ /* ignore */ }
+  }
+
+  // ---------- trade builder: two-column pick-what-you-want / pick-what-you-offer ----------
+  const tradeOverlay = document.getElementById('tradeOverlay');
+  const tradeWithName = document.getElementById('tradeWithName');
+  const theirColHead = document.getElementById('theirColHead');
+  const myColHead = document.getElementById('myColHead');
+  const theirPickList = document.getElementById('theirPickList');
+  const myPickList = document.getElementById('myPickList');
+  const tradeSummary = document.getElementById('tradeSummary');
+  const tradeSubmitBtn = document.getElementById('tradeSubmitBtn');
+  const tradeCloseBtn = document.getElementById('tradeCloseBtn');
+
+  let tradeTargetUser = null;
+  let tradeSelectedTheirs = new Set();
+  let tradeSelectedMine = new Set();
+
+  function pickRowHtml(item, side){
+    return '<label class="trade-pick-row">' +
+      '<input type="checkbox" data-side="' + side + '" data-card="' + item.id + '">' +
+      '<span class="tp-name">#' + escapeHtml(item.num||'') + ' ' + escapeHtml(item.name) + (item.qty>1?' x'+item.qty:'') + '</span>' +
+    '</label>';
+  }
+
+  function updateTradeSummary(){
+    const n = tradeSelectedTheirs.size + tradeSelectedMine.size;
+    tradeSummary.textContent = n === 0
+      ? 'Elige al menos una carta'
+      : ('Recibes ' + tradeSelectedTheirs.size + ' · Das ' + tradeSelectedMine.size);
+    tradeSubmitBtn.disabled = n === 0;
+  }
+
+  async function openTradeBuilder(username){
+    tradeTargetUser = username;
+    tradeSelectedTheirs = new Set();
+    tradeSelectedMine = new Set();
+    tradeWithName.textContent = 'Cambio con ' + username;
+    theirColHead.textContent = 'Repes de ' + username;
+    myColHead.textContent = 'Tus repes';
+    theirPickList.innerHTML = '<p class="hint">Cargando...</p>';
+    myPickList.innerHTML = '';
+    updateTradeSummary();
+    tradeOverlay.classList.add('show');
+    try{
+      const data = await api('/api/trade-match/' + encodeURIComponent(username));
+      theirPickList.innerHTML = data.theirOffer.length
+        ? data.theirOffer.map(i => pickRowHtml(i,'theirs')).join('')
+        : '<p class="hint">No tiene nada que te falte ahora mismo.</p>';
+      myPickList.innerHTML = data.myOffer.length
+        ? data.myOffer.map(i => pickRowHtml(i,'mine')).join('')
+        : '<p class="hint">No tienes repes que le falten a él/ella.</p>';
+      theirPickList.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        cb.addEventListener('change', () => {
+          if(cb.checked) tradeSelectedTheirs.add(cb.dataset.card); else tradeSelectedTheirs.delete(cb.dataset.card);
+          updateTradeSummary();
+        });
+      });
+      myPickList.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        cb.addEventListener('change', () => {
+          if(cb.checked) tradeSelectedMine.add(cb.dataset.card); else tradeSelectedMine.delete(cb.dataset.card);
+          updateTradeSummary();
+        });
+      });
+    }catch(e){
+      theirPickList.innerHTML = '<p class="hint">No se pudo cargar. Cierra e inténtalo otra vez.</p>';
+    }
+  }
+
+  function closeTradeBuilder(){ tradeOverlay.classList.remove('show'); tradeTargetUser = null; }
+  tradeCloseBtn.addEventListener('click', closeTradeBuilder);
+  tradeOverlay.addEventListener('click', e => { if(e.target === tradeOverlay) closeTradeBuilder(); });
+
+  tradeSubmitBtn.addEventListener('click', async () => {
+    if(!tradeTargetUser) return;
+    if(tradeSelectedTheirs.size === 0 && tradeSelectedMine.size === 0) return;
+    tradeSubmitBtn.disabled = true;
+    tradeSubmitBtn.textContent = 'Enviando...';
+    try{
+      // fromGives = cards from MY repes I'm offering away; toGives = cards from
+      // THEIR repes I'd receive — matches the server's from_user/to_user semantics
+      // where "I" am always the proposer (from_user) of this request.
+      await api('/api/trades', { method:'POST', body: JSON.stringify({
+        toUsername: tradeTargetUser,
+        fromGives: Array.from(tradeSelectedMine),
+        toGives: Array.from(tradeSelectedTheirs)
+      })});
+      closeTradeBuilder();
+      showConfirm('Propuesta enviada. Verás la respuesta cuando ' + tradeTargetUser + ' conteste.', 'Vale', () => {});
+      loadPendingTrades();
+    }catch(e){
+      tradeSummary.textContent = e.message || 'No se pudo enviar la propuesta.';
+    }
+    tradeSubmitBtn.disabled = false;
+    tradeSubmitBtn.textContent = 'Solicitar cambio';
+  });
 
   document.querySelectorAll('.app-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -573,11 +862,104 @@
   document.getElementById('refreshUsersBtn').addEventListener('click', () => loadUsersDirectory(true));
   document.getElementById('refreshMatchesBtn').addEventListener('click', () => loadMatches(true));
 
+  // ---------- direct chat ----------
+  const chatOverlay = document.getElementById('chatOverlay');
+  const chatWithName = document.getElementById('chatWithName');
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const chatSendBtn = document.getElementById('chatSendBtn');
+  const chatCloseBtn = document.getElementById('chatCloseBtn');
+  const unreadBadge = document.getElementById('unreadBadge');
+
+  let currentChatUser = null;
+  let chatPollTimer = null;
+
+  function renderChatMessages(messages){
+    if(!messages || messages.length === 0){
+      chatMessages.innerHTML = '<div class="chat-empty">Aún no hay mensajes. Escribe el primero.</div>';
+      return;
+    }
+    chatMessages.innerHTML = messages.map(m =>
+      '<div class="chat-msg ' + (m.mine ? 'mine' : 'theirs') + '">' + escapeHtml(m.body) + '</div>'
+    ).join('');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  async function loadChatThread(silent){
+    if(!currentChatUser) return;
+    try{
+      const data = await api('/api/messages/' + encodeURIComponent(currentChatUser));
+      renderChatMessages(data.messages);
+      refreshUnreadCount();
+    }catch(e){
+      if(!silent) chatMessages.innerHTML = '<div class="chat-empty">No se pudo cargar la conversación.</div>';
+    }
+  }
+
+  function openChat(withUsername){
+    currentChatUser = withUsername;
+    chatWithName.textContent = withUsername;
+    chatMessages.innerHTML = '<div class="chat-empty">Cargando...</div>';
+    chatOverlay.classList.add('show');
+    chatInput.value = '';
+    loadChatThread();
+    if(chatPollTimer) clearInterval(chatPollTimer);
+    chatPollTimer = setInterval(() => loadChatThread(true), 4000);
+    setTimeout(() => chatInput.focus(), 200);
+  }
+
+  function closeChat(){
+    chatOverlay.classList.remove('show');
+    currentChatUser = null;
+    if(chatPollTimer){ clearInterval(chatPollTimer); chatPollTimer = null; }
+  }
+
+  chatCloseBtn.addEventListener('click', closeChat);
+  chatOverlay.addEventListener('click', e => { if(e.target === chatOverlay) closeChat(); });
+
+  async function sendChatMessage(){
+    const body = chatInput.value.trim();
+    if(!body || !currentChatUser) return;
+    chatInput.value = '';
+    chatInput.disabled = true;
+    try{
+      await api('/api/messages/' + encodeURIComponent(currentChatUser), { method:'POST', body: JSON.stringify({ body }) });
+      await loadChatThread(true);
+    }catch(e){
+      chatInput.value = body; // put it back so nothing gets lost
+    }
+    chatInput.disabled = false;
+    chatInput.focus();
+  }
+  chatSendBtn.addEventListener('click', sendChatMessage);
+  chatInput.addEventListener('keydown', e => { if(e.key === 'Enter') sendChatMessage(); });
+
+  async function refreshUnreadCount(){
+    if(!token) return;
+    try{
+      const data = await api('/api/messages/unread-count');
+      const n = data.count || 0;
+      if(n > 0){ unreadBadge.textContent = n > 99 ? '99+' : String(n); unreadBadge.classList.add('show'); }
+      else { unreadBadge.classList.remove('show'); }
+    }catch(e){ /* ignore, try again next poll */ }
+  }
+
   // ---------- boot ----------
+  async function silentCollectionSync(){
+    try{
+      const before = JSON.stringify(cards.map(c => [c.have, c.repeQty, c.status]));
+      await loadChecklistAndState();
+      const after = JSON.stringify(cards.map(c => [c.have, c.repeQty, c.status]));
+      if(before !== after) render();
+    }catch(e){ /* ignore, try again next poll */ }
+  }
+
   async function boot(){
     try{
       await loadChecklistAndState();
       render();
+      refreshUnreadCount();
+      setInterval(() => { refreshUnreadCount(); silentCollectionSync(); }, 15000);
     }catch(e){
       if(String(e.message).includes('autenticado') || String(e.message).includes('inválida')){
         token = null; username = null;
