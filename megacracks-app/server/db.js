@@ -4,8 +4,9 @@
 const path = require('path');
 const { DatabaseSync } = require('node:sqlite');
 
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, '..', 'data', 'megacracks.db');
+const DB_PATH = path.resolve(process.env.DB_PATH || path.join(__dirname, '..', 'data', 'megacracks.db'));
 require('fs').mkdirSync(path.dirname(DB_PATH), { recursive: true });
+console.log('[db] usando base de datos en:', DB_PATH);
 
 const raw = new DatabaseSync(DB_PATH);
 raw.exec('PRAGMA journal_mode = WAL');

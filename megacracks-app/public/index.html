@@ -685,13 +685,14 @@
       if(blocks.length === 0){ matchesListEl.innerHTML = '<p class="hint">Todavía nadie tiene repetida una carta que te falte.</p>'; return; }
       matchesListEl.innerHTML = blocks.map(b =>
         '<div class="match-user-row" data-trade-user="' + escapeHtml(b.username) + '">' +
-          '<span class="mu-name">' + escapeHtml(b.username) + '</span>' +
+          '<span class="mu-name chat-name" data-chat-user="' + escapeHtml(b.username) + '">💬 ' + escapeHtml(b.username) + '</span>' +
           '<span class="mu-count">' + b.matches.length + (b.matches.length===1?' coincidencia':' coincidencias') + ' ›</span>' +
         '</div>'
       ).join('');
       matchesListEl.querySelectorAll('[data-trade-user]').forEach(row => {
         row.addEventListener('click', () => openTradeBuilder(row.dataset.tradeUser));
       });
+      wireChatNames(matchesListEl);
     }catch(e){
       matchesListEl.innerHTML = '<p class="hint">No se pudo comprobar las coincidencias ahora mismo.</p>';
     }

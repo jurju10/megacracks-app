@@ -1,16 +1,11 @@
 // Canonical Megacracks 2026/27 checklist — single source of truth, shared by
 // server (to validate/build state) and served to the client via GET /api/checklist.
 //
-// Fuente: checklist aportado por el usuario (cartas 1-450 confirmadas: ELITE, BASE,
-// ENJOY, ZONA VIP, MASTER ROOKIE y STARS ON 25). Las cartas 451-513 no traían
-// jugador ni equipo confirmado en la fuente, así que se incluyen como huecos
-// "Pendiente" bajo la serie "Por Confirmar (451-513)".
-//
 // Élite, Enjoy y Zona Vip están desdobladas en dos variantes independientes cada
 // una (num y num+"P"), para poder marcar cada una por separado:
 //   Élite     -> "Sin firma" / "Firma"
 //   Enjoy     -> "Rosa" / "Naranja"
-//   Zona Vip  -> "Con dorsal" / "Sin dorsal"
+//   Zona Vip  -> "Sin dorsal" / "Con dorsal"  (la "P" es la que lleva dorsal)
 
 const TEAMS = {
     "Deportivo Alavés": [
@@ -175,15 +170,15 @@ const SPECIALS = {
       ["387","Vargas · Rosa (Sevilla)"],["387P","Vargas · Naranja (Sevilla)"],
     ],
     "Zona Vip": [
-      ["388","Antony · Con dorsal (Betis)"],["388P","Antony · Sin dorsal (Betis)"],["389","Borja Iglesias · Con dorsal (Celta)"],["389P","Borja Iglesias · Sin dorsal (Celta)"],
-      ["390","Carlos Soler · Con dorsal (Real Sociedad)"],["390P","Carlos Soler · Sin dorsal (Real Sociedad)"],["391","Cubarsí · Con dorsal (Barcelona)"],["391P","Cubarsí · Sin dorsal (Barcelona)"],
-      ["392","De Frutos · Con dorsal (Rayo)"],["392P","De Frutos · Sin dorsal (Rayo)"],["393","Eric García · Con dorsal (Barcelona)"],["393P","Eric García · Sin dorsal (Barcelona)"],
-      ["394","Gavi · Con dorsal (Barcelona)"],["394P","Gavi · Sin dorsal (Barcelona)"],["395","Guedes · Con dorsal (Real Sociedad)"],["395P","Guedes · Sin dorsal (Real Sociedad)"],
-      ["396","Güler · Con dorsal (Real Madrid)"],["396P","Güler · Sin dorsal (Real Madrid)"],["397","Hancko · Con dorsal (Atlético)"],["397P","Hancko · Sin dorsal (Atlético)"],
-      ["398","Jauregizar · Con dorsal (Athletic)"],["398P","Jauregizar · Sin dorsal (Athletic)"],["399","Joan García · Con dorsal (Barcelona)"],["399P","Joan García · Sin dorsal (Barcelona)"],
-      ["400","Koke · Con dorsal (Atlético)"],["400P","Koke · Sin dorsal (Atlético)"],["401","Marcos Llorente · Con dorsal (Atlético)"],["401P","Marcos Llorente · Sin dorsal (Atlético)"],
-      ["402","Mikautadze · Con dorsal (Villarreal)"],["402P","Mikautadze · Sin dorsal (Villarreal)"],["403","Oblak · Con dorsal (Atlético)"],["403P","Oblak · Sin dorsal (Atlético)"],
-      ["404","Pubill · Con dorsal (Atlético)"],["404P","Pubill · Sin dorsal (Atlético)"],["405","Tchouaméni · Con dorsal (Real Madrid)"],["405P","Tchouaméni · Sin dorsal (Real Madrid)"],
+      ["388","Antony · Sin dorsal (Betis)"],["388P","Antony · Con dorsal (Betis)"],["389","Borja Iglesias · Sin dorsal (Celta)"],["389P","Borja Iglesias · Con dorsal (Celta)"],
+      ["390","Carlos Soler · Sin dorsal (Real Sociedad)"],["390P","Carlos Soler · Con dorsal (Real Sociedad)"],["391","Cubarsí · Sin dorsal (Barcelona)"],["391P","Cubarsí · Con dorsal (Barcelona)"],
+      ["392","De Frutos · Sin dorsal (Rayo)"],["392P","De Frutos · Con dorsal (Rayo)"],["393","Eric García · Sin dorsal (Barcelona)"],["393P","Eric García · Con dorsal (Barcelona)"],
+      ["394","Gavi · Sin dorsal (Barcelona)"],["394P","Gavi · Con dorsal (Barcelona)"],["395","Guedes · Sin dorsal (Real Sociedad)"],["395P","Guedes · Con dorsal (Real Sociedad)"],
+      ["396","Güler · Sin dorsal (Real Madrid)"],["396P","Güler · Con dorsal (Real Madrid)"],["397","Hancko · Sin dorsal (Atlético)"],["397P","Hancko · Con dorsal (Atlético)"],
+      ["398","Jauregizar · Sin dorsal (Athletic)"],["398P","Jauregizar · Con dorsal (Athletic)"],["399","Joan García · Sin dorsal (Barcelona)"],["399P","Joan García · Con dorsal (Barcelona)"],
+      ["400","Koke · Sin dorsal (Atlético)"],["400P","Koke · Con dorsal (Atlético)"],["401","Marcos Llorente · Sin dorsal (Atlético)"],["401P","Marcos Llorente · Con dorsal (Atlético)"],
+      ["402","Mikautadze · Sin dorsal (Villarreal)"],["402P","Mikautadze · Con dorsal (Villarreal)"],["403","Oblak · Sin dorsal (Atlético)"],["403P","Oblak · Con dorsal (Atlético)"],
+      ["404","Pubill · Sin dorsal (Atlético)"],["404P","Pubill · Con dorsal (Atlético)"],["405","Tchouaméni · Sin dorsal (Real Madrid)"],["405P","Tchouaméni · Con dorsal (Real Madrid)"],
     ],
     "Master Rookie": [
       ["406","Abdelkarim (Barcelona)"],["407","Antañón (Celta)"],["408","Carlos Espí (Levante)"],["409","Chupe (Málaga)"],
